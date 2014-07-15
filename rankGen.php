@@ -62,8 +62,8 @@ if (login_check($mysqli) == true) {
         echo json_encode($retArray);
     } else if ($_REQUEST['mode'] == "periods") {
         $periods = array();
-        $queryPeriods = sprintf("SELECT DISTINCT(period) FROM `game_statistics` ORDER BY period");
-        $querySessions = sprintf("SELECT DISTINCT(session), period FROM `game_statistics` ORDER BY period");
+        $queryPeriods = sprintf("SELECT DISTINCT(period) FROM `game_statistics` WHERE user='%s' ORDER BY period", $_SESSION['username']);
+        $querySessions = sprintf("SELECT DISTINCT(session), period FROM `game_statistics` WHERE user='%s' ORDER BY period", $_SESSION['username']);
         $resultPeriods = $mysqli->query($queryPeriods);
         $resultSessions = $mysqli->query($querySessions);
         while ($p = $resultPeriods->fetch_row()) {
@@ -92,6 +92,7 @@ if (login_check($mysqli) == true) {
         $result = $mysqli->query($query);
         $gameStatsSQL = sprintf("SELECT * FROM game_statistics WHERE period = '%s' AND user = '%s' AND session = '%s'", $period, $_SESSION['username'], $session);
         $statResults = $mysqli->query($gameStatsSQL);
+
         $playedGamesIDS = array();
         $wonGamesIDS = array();
         while ($statsGot = $statResults->fetch_row()) {
@@ -100,7 +101,7 @@ if (login_check($mysqli) == true) {
             $playedGamesIDS[] = $statsGot[6];
             $playedGamesIDS[] = $statsGot[7];
             $wonGamesIDS[] = $statsGot[8];
-            $wonGamesIDS[] = $statsGot[9];
+            $wonGamesIDS[] = $statsGot[9]; 
         }
         $playedGamesCounted = array_count_values($playedGamesIDS);
         $wonGamesCounted = array_count_values($wonGamesIDS);

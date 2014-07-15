@@ -6,12 +6,12 @@ sec_session_start();
 if (login_check($mysqli) == true) {
 
 	// if (isset($_SESSION['lastRound'])) {
-		// $_SESSION['playerArray'] = array();
-		// foreach ($_SESSION['lastRound'] as $player) {
-			// $_SESSION['playerArray'][] = clone $player;
-		// }
+	// $_SESSION['playerArray'] = array();
+	// foreach ($_SESSION['lastRound'] as $player) {
+	// $_SESSION['playerArray'][] = clone $player;
 	// }
-	$getRepAll = sprintf("SELECT * FROM `players-sessions` WHERE session = '%s' AND user = '%s'", $_SESSION['sessID'], $_SESSION['username']);
+	// }
+	$getRepAll = sprintf("SELECT * FROM `players-sessions` WHERE session = '%s' AND user = '%s'", $_REQUEST['chosen'], $_SESSION['username']);
 	$gottenRepPlayers = $mysqli -> query($getRepAll);
 
 	$_SESSION['playerArray'] = array();
@@ -50,6 +50,14 @@ if (login_check($mysqli) == true) {
 
 	$_SESSION['savedMatches'] = array();
 	$_SESSION['canReport'] = false;
+
+	//töm temporära poster i databasen
+	$delTempRoundsSQL = sprintf("DELETE FROM `game_statistics-unreported` WHERE session='%s' AND user='%s'", $_SESSION['sessID'], $_SESSION['username']);
+	$mysqli -> query($delTempRoundsSQL);
+	$delTempSessSQL = sprintf("DELETE FROM `players-sessions-unreported` WHERE session='%s' AND user='%s'", $_SESSION['sessID'], $_SESSION['username']);
+	$mysqli -> query($delTempSessSQL);
+	$delTempRestsSQL = sprintf("DELETE FROM `players-rests-unreported` WHERE session='%s' AND user='%s'", $_SESSION['sessID'], $_SESSION['username']);
+	$mysqli -> query($delTempRestsSQL);
 
 	$returnRound = json_encode($_SESSION['playerArray']);
 	echo $returnRound;

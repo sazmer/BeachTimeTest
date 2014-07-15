@@ -43,7 +43,8 @@ if (login_check($mysqli) == true) {
 			// $mysqli -> query($updateWins);
 
 		}
-		updateDatabase($_SESSION['savedMatches'], $_SESSION['chosenRests'], $_SESSION['roundNum'], $sessionWithoutName, $winners, $_SESSION['username']);
+
+		updateDatabase($_SESSION['savedMatches'], $_SESSION['roundNum'], $sessionWithoutName, $winners, $_SESSION['username']);
 		$_SESSION['canReport'] = false;
 		$playerIds = array_merge($_REQUEST['loserIDs'], $_REQUEST['winnerIds']);
 		foreach ($playerIds as $playerId) {
@@ -66,14 +67,19 @@ if (login_check($mysqli) == true) {
 				$mysqli -> query($sessPlaySQL);
 			}
 		}
-		//töm temporära poster i databasen
-	$delTempRoundsSQL = sprintf("DELETE FROM `game_statistics-unreported` WHERE session='%s' AND user='%s'", $_SESSION['sessID'], $_SESSION['username']);
-	$mysqli -> query($delTempRoundsSQL);
-	$delTempSessSQL = sprintf("DELETE FROM `players-sessions-unreported` WHERE session='%s' AND user='%s'", $_SESSION['sessID'], $_SESSION['username']);
-	$mysqli -> query($delTempSessSQL);
-	$delTempRestsSQL = sprintf("DELETE FROM `players-rests-unreported` WHERE session='%s' AND user='%s'", $_SESSION['sessID'], $_SESSION['username']);
-	$mysqli -> query($delTempRestsSQL);
-
+		// //Ska ändras till att bara ta bort den specifika sessionens unreported såklart
+		$clearUnrepSessSQL = sprintf("DELETE FROM `players-sessions-unreported` WHERE session='%s' AND user='%s'", $_SESSION['sessID'], $_SESSION['username']);
+		$mysqli -> query($clearUnrepSessSQL);
+		$clearUnrepRestsSQL = sprintf("DELETE FROM `players-rests-unreported` WHERE session='%s' AND user='%s'", $_SESSION['sessID'], $_SESSION['username']);
+		$mysqli -> query($clearUnrepRestsSQL);
+		$clearUnrepstatsSQL = sprintf("DELETE FROM `game_statistics-unreported` WHERE session='%s' AND user='%s'", $_SESSION['sessID'], $_SESSION['username']);
+		$mysqli -> query($clearUnrepstatsSQL);
+		// $truncateUnreportedSession = sprintf("TRUNCATE TABLE `players-sessions-unreported`");
+		// $truncateUnreportedRests = sprintf("TRUNCATE TABLE `players-rests-unreported`");
+		// $truncateUnreportedStats = sprintf("TRUNCATE TABLE `game_statistics-unreported`");
+		// $mysqli -> query($truncateUnreportedSession);
+		// $mysqli -> query($truncateUnreportedRests);
+		// $mysqli -> query($truncateUnreportedStats);
 
 		$_SESSION['roundNum']++;
 		echo 'YES';
@@ -87,7 +93,7 @@ if (login_check($mysqli) == true) {
 	die();
 }
 
-function updateDatabase($resultat, $chosenRests, $roundNum, $playID, $winners, $user) {
+function updateDatabase($resultat, $roundNum, $playID, $winners, $user) {
 	global $mysqli;
 	$matchCount = 0;
 	// foreach ($resultat[0] as $matchNum => $match) {
@@ -96,8 +102,9 @@ function updateDatabase($resultat, $chosenRests, $roundNum, $playID, $winners, $
 		// $mysqli -> query($gamestat);
 		// $matchCount = $matchCount + 2;
 	// }
-	$gamestat = sprintf("INSERT INTO `game_statistics` SELECT * FROM `game_statistics-unreported` WHERE user='%s' AND session='%s'", $_SESSION['username'], $_SESSION['sessID']);
+	$gamestat = sprintf("INSERT INTO `game_statistics` (session, round, game, player1, player2, player3, player4, winner1, winner2, period, user) SELECT session, round, game, player1, player2, player3, player4, winner1, winner2, period, user FROM `game_statistics-unreported` WHERE user='%s' AND session='%s'", $_SESSION['username'], $_SESSION['sessID']);
 	$mysqli->query($gamestat);
+
 	foreach ($resultat[0] as $matchNum => $match) {
 		$updateWinsSQL = sprintf("UPDATE `game_statistics` SET winner1='%s', winner2='%s' WHERE session='%s' AND user='%s' AND round='%s' AND game='%s'",  $winners[$matchCount], $winners[$matchCount + 1], $_SESSION['sessID'], $_SESSION['username'], $roundNum, $matchNum);
 		$mysqli->query($updateWinsSQL);
