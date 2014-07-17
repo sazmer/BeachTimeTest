@@ -1343,12 +1343,7 @@ $(document).ready(function() {
 			dataType : 'json',
 			success : function(data) {
 
-				$("#daySelect option").remove();
-				$.each(data, function(z, player) {
-					if (!$('#restSelect option[value="' + player.id + '"]').length)
-						day.append('<option value="' + player.id + '">' + player.boardNumber + ' ' + player.firstname + " " + player.lastname + '</option>');
-				});
-				day.enhanceWithin();
+				populAll();
 				$.mobile.pageContainer.pagecontainer("change", "#prepp", {
 					transition : "flip"
 				});
