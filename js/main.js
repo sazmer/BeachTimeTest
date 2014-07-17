@@ -700,7 +700,7 @@ $(document).ready(function() {
 	});
 
 	$(document).on('pagebeforeshow', '#editSession', function() {
-		$("#oldSessions").empty();
+
 		$.ajax({
 			url : "getSetSession.php",
 			dataType : 'json',
@@ -708,6 +708,7 @@ $(document).ready(function() {
 				getset : 'getAll'
 			}
 		}).then(function(data) {
+			$("#oldSessions").empty();
 			$("#oldSessions").append('<div id="sessionsShow" data-role="collapsible-set" data-theme="a" data-content-theme="a"></div>');
 			$.each(data, function(period, sessions) {
 				$("#sessionsShow").append('<div id="period' + period + '" data-role="collapsible" data-theme="a" data-content-theme="a"></div>');
@@ -715,10 +716,11 @@ $(document).ready(function() {
 				$.each(sessions, function(key, session) {
 					$("#period" + period).append('<a href="#" data-role="button" id="' + session + '">' + session + '</a>');
 				});
+				$("#sessionsShow").collapsibleset();
+				$("#sessionsShow").collapsibleset("refresh");
+				$("#oldSessions").trigger("create");
 			});
-			$("#sessionsShow").collapsibleset();
-			$("#sessionsShow").collapsibleset("refresh");
-			$("#oldSessions").trigger("create");
+
 		});
 
 	});
@@ -908,28 +910,28 @@ $(document).ready(function() {
 				if (!$('#restSelect option[value="' + idt + '"]').length && !$('#daySelect option[value="' + idt + '"]').length) {
 
 					$.get('assignBoardNumber.php', {
-					ids : idt
-				}, function(data) {
+						ids : idt
+					}, function(data) {
 
-					// day.append('<option value="' + idt + '">' + data + ' ' + $("#allSelect option[value='" + idt + "']").text() + '</option>');
-					// refresh();
-					$.ajax({
-						url : "saveState.php",
-						data : {
-							ids : idt,
-							action : "addPlayer"
-						},
-						dataType : 'json'
-					}).then(function(data) {
-						populAll();
+						// day.append('<option value="' + idt + '">' + data + ' ' + $("#allSelect option[value='" + idt + "']").text() + '</option>');
+						// refresh();
+						$.ajax({
+							url : "saveState.php",
+							data : {
+								ids : idt,
+								action : "addPlayer"
+							},
+							dataType : 'json'
+						}).then(function(data) {
+							populAll();
+						});
+						// $.get('saveState.php', {
+						// ids : idt,
+						// type : "day"
+						// }, function(data) {
+						// populList('list', dayList);
+						// });
 					});
-					// $.get('saveState.php', {
-					// ids : idt,
-					// type : "day"
-					// }, function(data) {
-					// populList('list', dayList);
-					// });
-				});
 					toast($(".playerListLink").first().text() + " tillagd");
 					$('input[data-type="search"]').val("");
 					$('input[data-type="search"]').trigger("change");
@@ -1501,8 +1503,9 @@ $(document).ready(function() {
 			//                resting.append($(this).text() + '<br>');
 		});
 		if (data[1] != null) {
-			var found = false;
+			
 			$.each(data[1], function(key, val) {
+				var found = false;
 				$("#restSelect option").not(".headSel").each(function() {
 					console.log("restSel:");
 					console.log($(this)[0].value);
@@ -1513,9 +1516,9 @@ $(document).ready(function() {
 					} else {
 						console.log("notFound");
 					}
-				});
+				}); 
 				if (found) {
-					$("#restList").append("<li data-theme='c'>" + val.boardNumber + ' ' + val.firstname + ' ' + val.lastname + "</li>");
+					$("#restList").append("<li data-theme='e'>" + val.boardNumber + ' ' + val.firstname + ' ' + val.lastname + "</li>");
 				} else {
 					$("#restList").append("<li data-theme='a'>" + val.boardNumber + ' ' + val.firstname + ' ' + val.lastname + "</li>");
 				}
