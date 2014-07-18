@@ -700,7 +700,7 @@ $(document).ready(function() {
 	});
 
 	$(document).on('pagebeforeshow', '#editSession', function() {
-
+	console.log("1");
 		$.ajax({
 			url : "getSetSession.php",
 			dataType : 'json',
@@ -708,20 +708,22 @@ $(document).ready(function() {
 				getset : 'getAll'
 			}
 		}).then(function(data) {
+			console.log("2");
 			$("#oldSessions").empty();
 			$("#oldSessions").append('<div id="sessionsShow" data-role="collapsible-set" data-theme="a" data-content-theme="a"></div>');
 			$.each(data, function(period, sessions) {
+				console.log("3");
 				$("#sessionsShow").append('<div id="period' + period + '" data-role="collapsible" data-theme="a" data-content-theme="a"></div>');
 				$("#period" + period).append('<h3>' + period + '</h3>');
 				$.each(sessions, function(key, session) {
+					console.log("4");
 					$("#period" + period).append('<a href="#" data-role="button" id="' + session + '">' + session + '</a>');
 				});
-				$("#sessionsShow").collapsibleset();
-				$("#sessionsShow").collapsibleset("refresh");
-				$("#oldSessions").trigger("create");
+				$("#oldSessions").enhanceWithin();
 			});
 
 		});
+		$("#oldSessions").enhanceWithin();
 
 	});
 
